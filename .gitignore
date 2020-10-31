@@ -3,3 +3,5 @@
 /MDK-ARM/STM32F407
 /MDK-ARM/STM32F407.uvguix.admin
 /MDK-ARM/startup_stm32f407xx.lst
+/APP2.bin
+/MDK-ARM/JLinkLog.txt
