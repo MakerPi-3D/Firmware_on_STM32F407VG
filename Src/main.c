@@ -56,7 +56,16 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "controlfunction.h"
 
+#include "ref_data_task.h"
+#include "respond_gui_task.h"
+#include "gui_task.h"
+#include "start_default_task.h"
+#include "print_task.h"
+#include "read_udisk_task.h"
+#include "user_interface.h"
+#include "Alter.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -109,6 +118,7 @@ osSemaphoreId ReadUdiskSemHandle;
 osSemaphoreId ReceiveUartCmdHandle;
 /* USER CODE BEGIN PV */
 
+static volatile bool is_start_default_task_init = false;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -149,7 +159,7 @@ void RespondGUITask_OS(void const * argument);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  main_user_core1_init();
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -184,6 +194,11 @@ int main(void)
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 
+//  MX_TIM3_Init2();
+  //屏幕BL频率是1kHz
+  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_2);//开启PWM通道4
+  Fan_5v_Init();
+  main_user_core2_init();
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -938,9 +953,12 @@ void InitTask_OS(void const * argument)
 
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
+  start_default_task_init();
+
+  is_start_default_task_init = true;
   for(;;)
   {
-    osDelay(1);
+    start_default_task_loop();
   }
   /* USER CODE END 5 */
 }
@@ -958,7 +976,8 @@ void RefDataTask_OS(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    if(!is_start_default_task_init) continue;
+    ref_data_task_loop();
   }
   /* USER CODE END RefDataTask_OS */
 }
@@ -976,7 +995,8 @@ void ReadUdiskTask_OS(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    if(!is_start_default_task_init) continue;
+    read_udisk_task_loop();
   }
   /* USER CODE END ReadUdiskTask_OS */
 }
@@ -994,7 +1014,8 @@ void PrintTask_OS(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    if(!is_start_default_task_init) continue;
+    print_task_loop();
   }
   /* USER CODE END PrintTask_OS */
 }
@@ -1012,7 +1033,8 @@ void GUITask_OS(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    if(!is_start_default_task_init) continue;
+    gui_task_loop();
   }
   /* USER CODE END GUITask_OS */
 }
@@ -1030,7 +1052,8 @@ void RespondGUITask_OS(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    if(!is_start_default_task_init) continue;
+    respond_gui_task_loop();
   }
   /* USER CODE END RespondGUITask_OS */
 }
@@ -1052,7 +1075,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-
+  if(htim->Instance == TIM6)
+  {
+    TIM6_IRQHandler_process();
+  }
+  else if(htim->Instance == TIM4)
+  {
+    TIM4_IRQHandler_process();
+  }
+  else if(htim->Instance == TIM2)
+  {
+    TIM2_IRQHandler_process();
+  }
+//  else if(htim->Instance == TIM7)
+//  {
+//    TIM7_IRQHandler_process();
+//  }
   /* USER CODE END Callback 1 */
 }
 

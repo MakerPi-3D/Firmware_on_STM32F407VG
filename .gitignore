@@ -5,3 +5,4 @@
 /MDK-ARM/startup_stm32f407xx.lst
 /APP2.bin
 /MDK-ARM/JLinkLog.txt
+/MDK-ARM/JLinkSettings.ini

@@ -1,0 +1,218 @@
+/*
+  //DCD_WriteEmptyTxFifo函数中添加了下面的内容---来源网络
+	if( ep->xfer_count >= ep->xfer_len) //zouxb  防止拔掉USB线导致的死机
+	{
+		UINT32 fifoemptymsk = 1 << ep->num;
+		USB_OTG_MODIFY_REG32(&pdev->regs.DREGS->DIEPEMPMSK,fifoemptymsk,0);
+		break;
+	}
+
+*/
+
+//对新生成的程序后要在usbh_conf.h添加以下内容
+/*
+#ifdef __cplusplus
+ }
+#endif
+*/
+
+
+//对新生成的程序用下面的f_unlink函数替换ff.c中的f_unlink-----生成的f_unlink在删除大文件时会出错-----下面的f_unlink是FATFS较高版本的
+//FRESULT f_unlink (
+//	CONST TCHAR* path		/* Pointer to the file or directory path */
+//)
+//{
+//	FRESULT res;
+//	DIR dj, sdj;
+//	BYTE *dir;
+//	DWORD dclst = 0;
+//	DEF_NAMEBUF;
+
+
+//	/* Get logical drive number */
+//	res = find_volume(&dj.fs, &path, 1);
+//	if (res == FR_OK) {
+//		INIT_BUF(dj);
+//		res = follow_path(&dj, path);		/* Follow the file path */
+//		if (_FS_RPATH && res == FR_OK && (dj.fn[NS] & NS_DOT))
+//			res = FR_INVALID_NAME;			/* Cannot remove dot entry */
+//#if _FS_LOCK
+//		if (res == FR_OK) res = chk_lock(&dj, 2);	/* Cannot remove open object */
+//#endif
+//		if (res == FR_OK) {					/* The object is accessible */
+//			dir = dj.dir;
+//			if (!dir) {
+//				res = FR_INVALID_NAME;		/* Cannot remove the origin directory */
+//			} else {
+//				if (dir[DIR_Attr] & AM_RDO)
+//					res = FR_DENIED;		/* Cannot remove R/O object */
+//			}
+//			if (res == FR_OK) {
+//				dclst = ld_clust(dj.fs, dir);
+//				if (dclst && (dir[DIR_Attr] & AM_DIR)) {	/* Is it a sub-directory ? */
+//#if _FS_RPATH
+//					if (dclst == dj.fs->cdir) {		 		/* Is it the current directory? */
+//						res = FR_DENIED;
+//					} else
+//#endif
+//					{
+//						mem_cpy(&sdj, &dj, sizeof (DIR));	/* Open the sub-directory */
+//						sdj.sclust = dclst;
+//						res = dir_sdi(&sdj, 2);
+//						if (res == FR_OK) {
+//							res = dir_read(&sdj, 0);			/* Read an item (excluding dot entries) */
+//							if (res == FR_OK) res = FR_DENIED;	/* Not empty? (cannot remove) */
+//							if (res == FR_NO_FILE) res = FR_OK;	/* Empty? (can remove) */
+//						}
+//					}
+//				}
+//			}
+//			if (res == FR_OK) {
+//				res = dir_remove(&dj);		/* Remove the directory entry */
+//				if (res == FR_OK && dclst)	/* Remove the cluster chain if exist */
+//					res = remove_chain(dj.fs, dclst);
+//				if (res == FR_OK) res = sync_fs(dj.fs);
+//			}
+//		}
+//		FREE_BUF();
+//	}
+
+//	LEAVE_FF(dj.fs, res);
+//}
+
+
+/** Configure pins as
+        * Analog
+        * Input
+        * Output
+        * EVENT_OUT
+        * EXTI
+*/
+//void MX_GPIO_Init(void)
+//{
+
+//  GPIO_InitTypeDef GPIO_InitStruct;
+
+//  /* GPIO Ports Clock Enable */
+//  __GPIOE_CLK_ENABLE();
+//  __GPIOC_CLK_ENABLE();
+//  __GPIOH_CLK_ENABLE();
+//  __GPIOA_CLK_ENABLE();
+//  __GPIOB_CLK_ENABLE();
+//  __GPIOD_CLK_ENABLE();
+
+//  /*Configure GPIO pins : PE2 PE3 PE4 PE5
+//                           PE0 PE1 */
+//  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5
+//                          |GPIO_PIN_0|GPIO_PIN_1;
+//  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+//  GPIO_InitStruct.Pull = GPIO_NOPULL;
+//  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+//  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+//  /*Configure GPIO pins : PC13 PC14 PC15 PC0
+//                           PC1 PC3 PC5 PC6
+//                           PC7 */
+//  GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15|GPIO_PIN_0
+//                          |GPIO_PIN_1|GPIO_PIN_3|GPIO_PIN_5|GPIO_PIN_6
+//                          |GPIO_PIN_7;
+//  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+//  GPIO_InitStruct.Pull = GPIO_NOPULL;
+//  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+//  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+//  /*Configure GPIO pin : PC2 */
+//  GPIO_InitStruct.Pin = GPIO_PIN_2;
+//  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+//  GPIO_InitStruct.Pull = GPIO_PULLUP;
+//  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+//  /*Configure GPIO pins : PA0 PA4 PA15 */
+//  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_4|GPIO_PIN_15;
+//  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+//  GPIO_InitStruct.Pull = GPIO_PULLUP;
+//  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+//  /*Configure GPIO pins : PA2 PA3 PA8 */
+//  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_8;
+//  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+//  GPIO_InitStruct.Pull = GPIO_NOPULL;
+//  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+//  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+//  /*Configure GPIO pins : PB0 PB10 PB11 PB12
+//                           PB13 PB5 PB7 PB9 */
+//  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12
+//                          |GPIO_PIN_13|GPIO_PIN_5|GPIO_PIN_7|GPIO_PIN_9;
+//  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+//  GPIO_InitStruct.Pull = GPIO_NOPULL;
+//  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+//  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+//  /*Configure GPIO pins : PB1 PB2 */
+//  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2;
+//  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+//  GPIO_InitStruct.Pull = GPIO_NOPULL;
+//  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+//  /*Configure GPIO pins : PD11 PD12 PD13 PD6 */
+//  GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_6;
+//  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+//  GPIO_InitStruct.Pull = GPIO_NOPULL;
+//  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+//  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+//  /*Configure GPIO pin : PD3 */
+//  GPIO_InitStruct.Pin = GPIO_PIN_3;
+//  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+//  GPIO_InitStruct.Pull = GPIO_PULLUP;
+//  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+//  /*Configure GPIO pin : PB6 */
+//  GPIO_InitStruct.Pin = GPIO_PIN_6;
+//  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+//  GPIO_InitStruct.Pull = GPIO_PULLUP;
+//  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+//  /* EXTI interrupt init*/
+//  HAL_NVIC_SetPriority(EXTI3_IRQn, 5, 0);
+//  HAL_NVIC_EnableIRQ(EXTI3_IRQn);
+
+//}
+
+///* FSMC initialization function */
+//void MX_FSMC_Init(void)
+//{
+//  FSMC_NORSRAM_TimingTypeDef Timing;
+
+//  /** Perform the SRAM1 memory initialization sequence
+//  */
+//  hsram1.Instance = FSMC_NORSRAM_DEVICE;
+//  hsram1.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
+//  /* hsram1.Init */
+//  hsram1.Init.NSBank = FSMC_NORSRAM_BANK1;
+//  hsram1.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
+//  hsram1.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
+//  hsram1.Init.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_16;
+//  hsram1.Init.BurstAccessMode = FSMC_BURST_ACCESS_MODE_DISABLE;
+//  hsram1.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
+//  hsram1.Init.WrapMode = FSMC_WRAP_MODE_DISABLE;
+//  hsram1.Init.WaitSignalActive = FSMC_WAIT_TIMING_BEFORE_WS;
+//  hsram1.Init.WriteOperation = FSMC_WRITE_OPERATION_ENABLE;
+//  hsram1.Init.WaitSignal = FSMC_WAIT_SIGNAL_DISABLE;
+//  hsram1.Init.ExtendedMode = FSMC_EXTENDED_MODE_DISABLE;
+//  hsram1.Init.AsynchronousWait = FSMC_ASYNCHRONOUS_WAIT_DISABLE;
+//  hsram1.Init.WriteBurst = FSMC_WRITE_BURST_DISABLE;
+//  /* Timing */
+//  Timing.AddressSetupTime = 15;
+//  Timing.AddressHoldTime = 15;
+//  Timing.DataSetupTime = 255;
+//  Timing.BusTurnAroundDuration = 15;
+//  Timing.CLKDivision = 16;
+//  Timing.DataLatency = 17;
+//  Timing.AccessMode = FSMC_ACCESS_MODE_A;
+//  /* ExtTiming */
+
+//  HAL_SRAM_Init(&hsram1, &Timing, NULL);
+
+//}
